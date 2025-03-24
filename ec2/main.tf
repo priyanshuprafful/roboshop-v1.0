@@ -19,6 +19,7 @@ resource "aws_instance" "server" {
 }
 
 resource "null_resource" "ansible_tasks" { # no need to keep inside the server , as if this fails then we have to re create the instances as well
+  depends_on = [aws_instance.server , aws_route53_record.server_dns_record] # only after this it should run 
   provisioner "remote-exec" {
 
     connection {
