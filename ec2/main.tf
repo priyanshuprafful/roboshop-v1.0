@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    null = {
+      source  = "hashicorp/null"
+      version = "3.2.3"
+    }
+  }
+}
 resource "aws_instance" "server" {
   ami = data.aws_ami.ami_example.id
   instance_type = "t3.small"
@@ -7,19 +15,23 @@ resource "aws_instance" "server" {
     Name = var.name
   }
 
+
+}
+
+resource "null_resource" "ansible_tasks" { # no need to keep inside the server , as if this fails then we have to re create the instances as well
   provisioner "remote-exec" {
 
     connection {
       type = "ssh"
       user = "centos"
       password = "DevOps321"
-      host = self.public_ip
+      host = aws_instance.server.public_ip
     }
 
     inline = [
 
-    "sudo labauto ansible",
-    "ansible-pull -i localhost, -U https://github.com/priyanshuprafful/roboshop-ansible-2.0 main.yml -e env=dev -e role_name=${var.name}"
+      "sudo labauto ansible",
+      "ansible-pull -i localhost, -U https://github.com/priyanshuprafful/roboshop-ansible-2.0 main.yml -e env=dev -e role_name=${var.name}"
 
     ]
   }
